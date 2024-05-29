@@ -8,6 +8,9 @@ module.exports = {
   },
   theme: {
     extend: {
+      backgroundImage :{
+        logout: "url('/images/logout_bg.png')"
+      },
       fontFamily: {
         display: ["var(--font-sf)", "system-ui", "sans-serif"],
         default: ["var(--font-inter)", "system-ui", "sans-serif"],

@@ -11,11 +11,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: "https://precedent.dev",
+      url: "https://phenomenal.ai",
       lastModified: new Date(),
     },
     ...users.map((user) => ({
-      url: `https://precedent.dev/${user.id}`,
+      url: `https://phenomenal.ai/${user.id}`,
       lastModified: new Date(),
     })),
   ];
