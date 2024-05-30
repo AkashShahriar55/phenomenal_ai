@@ -17,7 +17,8 @@ module.exports = {
         'deeptext':'#888888',
         'graytext':'#333333',
         'darktext':'#111111',
-        'darkgray':'#D2D2D2'
+        'darkgray':'#D2D2D2',
+        'blood-red':'#FC0808',
       },
       backgroundColor:{
         'light-gray':'#F2F2F2',
@@ -31,7 +32,8 @@ module.exports = {
         'gray-light':'#BFBFBF',
         'gray-normal':'#111111',
         'gray-dark':'#333333',
-        'gray-smooth':'#D2D2D2'
+        'gray-smooth':'#D2D2D2',
+        'blood-red':'#FC0808',
       },
       placeholderColor:{
         'gray-light':'#BFBFBF',

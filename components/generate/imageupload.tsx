@@ -4,8 +4,12 @@ import { useDropzone } from 'react-dropzone';
 import classNames, { Argument } from "classnames";
 import Loader from './loader';
 
+interface ImageUploadProps {
+  className: String;
+  onImageSelected?: (image:string|null) => void;
+}
 
-const ImageUpload = ({ className }: { className: String }) => {
+const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected}) => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -19,6 +23,9 @@ const ImageUpload = ({ className }: { className: String }) => {
 
     reader.onload = () => {
       setUploadedImage(reader.result as string);
+      if(onImageSelected){
+        onImageSelected(reader.result as string)
+      }
       setLoading(false);
     };
 

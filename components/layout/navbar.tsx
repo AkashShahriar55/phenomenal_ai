@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import Logo from "./logo";
+import React, { useState } from 'react';
 
 export default function NavBar({ session }: { session: Session | null }) {
   const { SignInModal, setShowSignInModal } = useSignInModal();
@@ -21,9 +22,14 @@ export default function NavBar({ session }: { session: Session | null }) {
   const getNavComponent = () => {
     if (pathname.startsWith('/generate')) { // Updated condition
       return <GenerateNavBar router={router} />;
-    } else if (pathname.startsWith('/generate')) {
+    } else if (pathname.startsWith('/')) {
       return <HomeNavBar router={router} />;
     }
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
 
 
@@ -44,7 +50,7 @@ export default function NavBar({ session }: { session: Session | null }) {
 
 function HomeNavBar({ router }: { router: AppRouterInstance }) {
   return (
-    <div className="flex h-20 px-20 items-center justify-between w-full bg-gradient-to-b from-black to-transparent">
+    <div className="flex py-5 px-20 items-center justify-between w-full bg-gradient-to-b from-black to-transparent">
       <Logo />
       <div>
         <div>
@@ -68,13 +74,13 @@ function HomeNavBar({ router }: { router: AppRouterInstance }) {
 
 function GenerateNavBar({ router }: { router: AppRouterInstance }) {
   return (
-    <div className="flex h-20 px-20 items-center justify-between w-full">
+    <div className="flex py-5 px-20 items-center justify-between w-full">
       <Logo />
       <div>
-        <div className="grid grid-cols-3 gap-4 max-h-10">
+        <div className="flex flex-wrap gap-4">
           <button className="bg-blood-red text-sm w-40 text-white px-4 py-2 rounded">GENERATE</button>
           <button className="bg-dark-gray text-sm text-white rounded w-40 flex items-center justify-center"><img src="/images/diamond-icon.svg" alt="diamond" className="mr-2.5" />ALL ASSETS</button>
-          <button className="border border-white text-sm text-white rounded w-40 flex items-center justify-center"><img src="/images/profile-icon.png" alt="diamond" className="mr-2.5"/>nihar.hm<img src="/images/dropdown-icon.png" alt="diamond" className="ml-4"/></button>
+          <button className="border border-white text-sm text-white rounded w-40 flex items-center justify-center"><img src="/images/profile-icon.png" alt="diamond" className="mr-2.5" />nihar.hm<img src="/images/dropdown-icon.png" alt="diamond" className="ml-4" /></button>
         </div>
       </div>
     </div>
