@@ -49,6 +49,7 @@ module.exports = {
         // Fade up and down
         "fade-up": "fade-up 0.5s",
         "fade-down": "fade-down 0.5s",
+        "slide-down": "slide-down-fade 0.3s",
         // Tooltip
         "slide-up-fade": "slide-up-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-down-fade": "slide-down-fade 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -87,7 +88,7 @@ module.exports = {
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
         "slide-down-fade": {
-          "0%": { opacity: 0, transform: "translateY(-6px)" },
+          "0%": { opacity: 0, transform: "translateY(-50px)" },
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
       },

@@ -29,7 +29,7 @@ export default function Generate() {
     fluid: false, // Makes the player responsive
   };
 
-  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Loaded);
+  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Loading);
 
   const handleImageInput = useCallback((image: string | null) => {
     setUploadedImage(image)
@@ -55,11 +55,11 @@ export default function Generate() {
         <div className="flex flex-wrap-reverse w-full md:flex-nowrap md:space-y-0 md:space-x-4 h-screen pt-28 pb-12">
           {/* Left Panel */}
           <form action="" className="flex flex-col w-full md:w-1/2 space-y-4">
-            <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-up"  style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
+            <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-down"  style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
               <h2 className="text-sm font-bold text-gray-smooth">Input Image</h2>
               <ImageUpload className="mt-2.5" onImageSelected={handleImageInput} />
             </div>
-            <div className="bg-darkest-gray p-5 flex-1  animate-fade-up"  style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
+            <div className="bg-darkest-gray p-5 flex-1  animate-fade-down"  style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
               <div className="h-full flex flex-col items-center">
                 <div className="flex-1 w-full h-full ">
                   <TextareaWithCount maxLength={320} onNonEmptyInput={handleNonEmptyInput} />
@@ -79,7 +79,7 @@ export default function Generate() {
 
 
           {/* Right Panel */}
-          <div className="w-full md:w-1/2 min-h-10 bg-darkest-gray p-4 rounded flex items-center justify-center text-sm text-white animate-fade-up" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }} >
+          <div className="w-full md:w-1/2 min-h-10 bg-darkest-gray p-4 rounded flex items-center justify-center text-sm text-white animate-fade-down" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }} >
             {
               videoState === VideoGenerationState.Initial ? (
                 <p>Your creations will show up here.</p>
@@ -92,7 +92,7 @@ export default function Generate() {
                       <p>Sometext</p>
                       <img src="/images/delete-icon.svg" alt="delete" className="" />
                     </div>
-                    <div className="h-full  mt-2.5">
+                    <div className="relative h-full  mt-2.5">
                       <CustomVideoPlayer options={videoJsOptions} />
                     </div>
                   </div>
@@ -102,7 +102,7 @@ export default function Generate() {
                       <img src="/images/cross-icon.svg" alt="cross" className="" />
                     </div>
                     <p>Did the video accurately represent the prompt you provided?</p>
-                    <div className="flex justify-between ">
+                    <div className="flex flex-row justify-between items-end ">
                       <div className="flex gap-3" >
                         <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#E40513]">
                           <img src="/images/level-1-icon.svg" alt="cross" className="" />
@@ -121,7 +121,7 @@ export default function Generate() {
                         </button>
                       </div>
 
-                      <p className="bg-red-500 align-bottom">01/03</p>
+                      <p className="">01/03</p>
 
                     </div>
 

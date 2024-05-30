@@ -37,7 +37,7 @@ export default function NavBar({ session }: { session: Session | null }) {
     <>
       <SignInModal />
       <div
-        className={`fixed top-0 w-full flex justify-center ${scrolled
+        className={`fixed top-0 w-full flex justify-center animation-slide-down ${scrolled
           ? "bg-black/50 backdrop-blur-xl"
           : "bg-black/0"
           } z-30 transition-all`}
