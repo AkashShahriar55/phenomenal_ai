@@ -21,9 +21,6 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={cx(sfPro.variable, inter.variable)}>
-        <div className="h-screen w-full bg-logout bg-cover">
-          <div className="fixed h-screen w-full" />
-          <div className="absolute inset-0 bg-black opacity-30"></div>
           <Suspense fallback="...">
             <Nav />
           </Suspense>
@@ -32,7 +29,6 @@ export default async function RootLayout({
           </main>
           <Footer />
           <VercelAnalytics />
-        </div>
       </body>
     </html>
   );

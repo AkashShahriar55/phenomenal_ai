@@ -9,11 +9,39 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage :{
-        logout: "url('/images/logout_bg.png')"
+        logout: "url('/images/logout_bg.png')",
+        loginPage:"url('/images/login_page_bg.png')"
+      },
+      colors:{
+        'lighttext':'#BFBFBF',
+        'deeptext':'#888888',
+        'graytext':'#333333',
+        'darktext':'#111111',
+        'darkgray':'#D2D2D2'
+      },
+      backgroundColor:{
+        'light-gray':'#F2F2F2',
+        'normal-gray':'#D2D2D2',
+        'blood-red':'#FC0808',
+        'dark-gray':'#333333',
+        'darkest-gray':'#111111',
+        'darker-gray':'#222222'
+      },
+      textColor:{
+        'gray-light':'#BFBFBF',
+        'gray-normal':'#111111',
+        'gray-dark':'#333333',
+        'gray-smooth':'#D2D2D2'
+      },
+      placeholderColor:{
+        'gray-light':'#BFBFBF',
       },
       fontFamily: {
         display: ["var(--font-sf)", "system-ui", "sans-serif"],
         default: ["var(--font-inter)", "system-ui", "sans-serif"],
+      },
+      maxWidth: {
+        '540': '33.75rem',
       },
       animation: {
         // Fade up and down

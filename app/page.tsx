@@ -7,6 +7,7 @@ import Image from "next/image";
 import BackgroundImage from "@/components/layout/background";
 import { nFormatter } from "@/lib/utils";
 
+
 export default async function Home() {
 
 
@@ -31,8 +32,9 @@ export default async function Home() {
 
   return (
     <>
-      <div className="absolute w-full h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center">
+      <div className="absolute w-full bg-logout bg-cover h-screen flex items-center justify-center">
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+      <div className="z-10 flex flex-col items-center animate-fade-up">
           <h1 className="text-7xl font-bold text-center mb-3 text-white">Imagine Tomorrow</h1>
           <h1 className="text-3xl font-semi-bold mb-3 text-white">Play. Work. Create</h1>
           <p className="text-2xl max-w-xl text-center text-white mt-20 mx-auto">
@@ -41,6 +43,7 @@ export default async function Home() {
           </p>
           <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded">TRY NOW</button>
         </div>
+        
       </div>
     
     </>
