@@ -3,6 +3,12 @@ import ImageUpload from "@/components/generate/imageupload";
 import TextareaWithCount from "@/components/generate/textareawithcount";
 import React, { useCallback, useState, useEffect } from 'react';
 import CustomVideoPlayer from "@/components/generate/customvideoplayer";
+import { GenerateFormData, GenerateFormSchema } from "@/lib/types";
+import * as z from "zod";
+import axios from "axios";
+import { useRouter } from 'next/navigation'
+import { Form, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 enum VideoGenerationState {
   Initial,
@@ -13,6 +19,7 @@ enum VideoGenerationState {
 
 export default function Generate() {
 
+  const router = useRouter();
   const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [text, setText] = useState<string>('');
@@ -47,22 +54,79 @@ export default function Generate() {
     }
   }, [uploadedImage, text]);
 
-  const imageSrc = "/images/logout_bg.png";
+  /**
+   * Form for the prompt for the code generation.
+   * Zod used for validation.
+   */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<GenerateFormData>({
+    resolver: zodResolver(GenerateFormSchema), // Apply the zodResolver
+  });
+
+  /**
+   * Submit the prompt to the API to generate a response.
+   * If the user is not subscribed and there are no remaining free tries, it will show a modal.
+   * @param values (string) prompt for the code generation
+   */
+  const onSubmit = async (values: GenerateFormData) => {
+    try {
+
+      console.log(values.prompt)
+
+      /**
+       * Send the messages to the API.
+       * Stores the response.
+       */
+      const response = await axios.post("/api/generate", {
+        prompt: values.prompt,
+      });
+
+
+
+    } catch (error: any) {
+      // if the user is not subscribed and there are no remaining free tries, it will show a modal
+      if (error.response.status === 403) {
+        // proModal.onOpen();
+      } else {
+        console.log(error);
+        // toast.error("Could not answer your question");
+      }
+    } finally {
+      router.refresh();
+    }
+  };
+
+
+
+
 
   return (
     <>
       <div className="absolute w-full bg-black bg-cover h-full px-20 flex items-center justify-center overflow-auto">
         <div className="flex flex-wrap-reverse w-full md:flex-nowrap md:space-y-0 md:space-x-4 h-screen pt-28 pb-12">
           {/* Left Panel */}
-          <form action="" className="flex flex-col w-full md:w-1/2 space-y-4">
-            <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-down"  style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
+          <form onSubmit={handleSubmit(onSubmit)} action="" className="flex flex-col w-full md:w-1/2 space-y-4">
+            <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-down" style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
               <h2 className="text-sm font-bold text-gray-smooth">Input Image</h2>
               <ImageUpload className="mt-2.5" onImageSelected={handleImageInput} />
             </div>
-            <div className="bg-darkest-gray p-5 flex-1  animate-fade-down"  style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
+            <div className="bg-darkest-gray p-5 flex-1  animate-fade-down" style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
               <div className="h-full flex flex-col items-center">
                 <div className="flex-1 w-full h-full ">
-                  <TextareaWithCount maxLength={320} onNonEmptyInput={handleNonEmptyInput} />
+
+                  <TextareaWithCount
+                    maxLength={320}
+                    onNonEmptyInput={handleNonEmptyInput}
+                    type="promt"
+                    placeholder="Describe the shot."
+                    error={errors.prompt}
+                    name="prompt"
+                    register={register}
+                  />
                 </div>
 
                 <button
@@ -117,7 +181,7 @@ export default function Generate() {
                           <img src="/images/level-4-icon.svg" alt="cross" className="" />
                         </button>
                         <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#28A738]">
-                          <img src="/images/level-5-icon.svg"  alt="cross" className="" />
+                          <img src="/images/level-5-icon.svg" alt="cross" className="" />
                         </button>
                       </div>
 
