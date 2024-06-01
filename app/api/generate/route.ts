@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
-import {sendMessage} from "@/app/util/sqsClientUtils"
+import { receiveMessages, sendMessage } from "@/app/util/sqsClientUtils"
+import { v4 as uuidv4 } from "uuid";
+import { getS3Client } from '@/app/util/getS3Client';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 
 export async function POST(req: Request) {
   try {
     // const { userId } = auth(); // get the user ID from the session (Clerk)
     const body = await req.json(); // get the request body
-    const { prompt }:{prompt:string} = body; // get the messages from the request body
+    const { prompt }: { prompt: string } = body; // get the messages from the request body
 
-    const jobId = "1"
+    const jobID = uuidv4();
 
     // // if the user ID is not valid, return an unauthorized response
     // if (!userId) {
@@ -33,19 +37,40 @@ export async function POST(req: Request) {
     // }
 
     const response = await sendMessage({
-      message:prompt,
-      jobID:jobId
+      message: prompt,
+      duration: 4,
+      jobID: jobID
     })
-   
 
     console.log(response)
+
+    const data = await receiveMessages(jobID)
+    console.log(data)
+
+    const name = jobID + ".mp4"
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: name as string,
+    });
+
+
+    let url
+    try {
+      const s3Client = await getS3Client()
+      url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+      console.log(url)
+    } catch (error) {
+      console.error(error);
+    }
+
 
     // // if the user is not on a pro subscription, increment the API limit
     // if (!isPro) {
     //   await incrementApiLimit();
     // }
 
-    return NextResponse.json(response);
+    return NextResponse.json({url,name});
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });

@@ -3,7 +3,8 @@ import { zero } from '@zerosecrets/zero';
 interface AwsCredentials {
   accessKeyId: string;
   secretAccessKey: string;
-  sqsQueueName:string;
+  sqsQueueInputName:string;
+  sqsQueueOutputName:string;
 }
 
 let credentials: AwsCredentials | undefined;
@@ -33,7 +34,8 @@ export async function getAwsCredentials(): Promise<AwsCredentials> {
   credentials = {
     accessKeyId: secrets.aws.aws_access_key_id,
     secretAccessKey: secrets.aws.aws_secret_access_key,
-    sqsQueueName: secrets.aws.sqs_queue_name
+    sqsQueueInputName: secrets.aws.sqs_queue_input_name,
+    sqsQueueOutputName: secrets.aws.sqs_queue_output_name
   };
 
   return credentials;

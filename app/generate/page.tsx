@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter } from 'next/navigation'
 import { Form, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import GeneratingLoader from "@/components/generate/modalloader";
 
 enum VideoGenerationState {
   Initial,
@@ -24,19 +25,22 @@ export default function Generate() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [text, setText] = useState<string>('');
 
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoName, setVideoName] = useState<string | null>(null);
+
   const videoJsOptions = {
     autoplay: false,
     controls: true,
     sources: [
       {
-        src: 'https://vjs.zencdn.net/v/oceans.mp4',
+        src: videoUrl,
         type: 'video/mp4',
       },
     ],
     fluid: false, // Makes the player responsive
   };
 
-  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Loading);
+  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Initial);
 
   const handleImageInput = useCallback((image: string | null) => {
     setUploadedImage(image)
@@ -53,6 +57,8 @@ export default function Generate() {
       setSubmitEnabled(false)
     }
   }, [uploadedImage, text]);
+
+  const [loading, setLoading] = useState(false);
 
   /**
    * Form for the prompt for the code generation.
@@ -73,21 +79,30 @@ export default function Generate() {
    * @param values (string) prompt for the code generation
    */
   const onSubmit = async (values: GenerateFormData) => {
+    setLoading(true)
     try {
-
       console.log(values.prompt)
-
       /**
        * Send the messages to the API.
        * Stores the response.
        */
       const response = await axios.post("/api/generate", {
         prompt: values.prompt,
+      },{
+        timeout: 1000 * 60 * 10
       });
 
-
+      if(response.data.url){
+        setVideoUrl(response.data.url)
+        setVideoState(VideoGenerationState.Loaded)
+        console.log(response.data)
+        setVideoName(response.data.name)
+      }else{
+        setVideoState(VideoGenerationState.Failed)
+      }
 
     } catch (error: any) {
+      setLoading(false)
       // if the user is not subscribed and there are no remaining free tries, it will show a modal
       if (error.response.status === 403) {
         // proModal.onOpen();
@@ -96,9 +111,13 @@ export default function Generate() {
         // toast.error("Could not answer your question");
       }
     } finally {
+      setLoading(false)
       router.refresh();
     }
+    
   };
+
+
 
 
 
@@ -106,6 +125,14 @@ export default function Generate() {
 
   return (
     <>
+      <div>
+        {loading ? (
+          <GeneratingLoader />
+        ) : (
+          <div>
+          </div>
+        )}
+      </div>
       <div className="absolute w-full bg-black bg-cover h-full px-20 flex items-center justify-center overflow-auto">
         <div className="flex flex-wrap-reverse w-full md:flex-nowrap md:space-y-0 md:space-x-4 h-screen pt-28 pb-12">
           {/* Left Panel */}
@@ -153,7 +180,7 @@ export default function Generate() {
                 <div className=" h-full w-full flex flex-col gap-4">
                   <div className="h-full flex flex-col">
                     <div className="w-full  flex justify-between">
-                      <p>Sometext</p>
+                      <p>{videoName}</p>
                       <img src="/images/delete-icon.svg" alt="delete" className="" />
                     </div>
                     <div className="relative h-full  mt-2.5">
