@@ -10,21 +10,6 @@ import { nFormatter } from "@/lib/utils";
 export default async function Login() {
 
 
-  const { stargazers_count: stars } = await fetch(
-    "https://api.github.com/repos/steven-tey/precedent",
-    {
-      ...(process.env.GITHUB_OAUTH_TOKEN && {
-        headers: {
-          Authorization: `Bearer ${process.env.GITHUB_OAUTH_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      }),
-      // data will revalidate every 24 hours
-      next: { revalidate: 86400 },
-    },
-  )
-    .then((res) => res.json())
-    .catch((e) => console.log(e));
 
 
   const imageSrc = "/images/logout_bg.png";
