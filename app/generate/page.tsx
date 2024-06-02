@@ -96,9 +96,10 @@ export default function Generate() {
         },
         body: JSON.stringify({ prompt:values.prompt }),
       });
+      console.error(response)
 
       const data = await response.json()
-      console.error(data)
+      
 
       if(response.ok){
         setVideoUrl(data.url)

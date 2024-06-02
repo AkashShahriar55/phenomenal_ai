@@ -37,7 +37,7 @@ const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected, u
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {"image/png":[".png"],"image/jpeg":['.jpeg','jpg']},
+    accept: {"image/png":[".png"],"image/jpg":['.jpeg','jpg']},
   });
 
   return (
