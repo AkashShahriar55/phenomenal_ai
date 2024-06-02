@@ -85,6 +85,6 @@ export async function POST(req: Request) {
     return NextResponse.json({url,name});
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);
-    return NextResponse.json({error},{status : 500});
+    return NextResponse.json({error:`some error occured : ${error}`},{status : 500});
   }
 }
