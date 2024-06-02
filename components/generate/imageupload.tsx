@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone,Accept } from 'react-dropzone';
 import classNames, { Argument } from "classnames";
 import Loader from './loader';
 
@@ -37,7 +37,7 @@ const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected, u
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: 'image/*',
+    accept: {"image/*":[".png",'.jpeg','jpg']},
   });
 
   return (
