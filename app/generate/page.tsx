@@ -117,7 +117,7 @@ export default function Generate() {
             break
           }
 
-          sleep(1000 * 30)
+          await sleep(1000 * 30)
 
         } while (!receiveResponse.ok && Date.now() - timeNow < timeout)
 
