@@ -5,12 +5,13 @@ import classNames, { Argument } from "classnames";
 import Loader from './loader';
 
 interface ImageUploadProps {
-  className: String;
-  onImageSelected?: (image:string|null) => void;
+  className: string;
+  onImageSelected: (image:string|null) => void;
+  uploadedImage:string | null
 }
 
-const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected}) => {
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected, uploadedImage}) => {
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -22,10 +23,7 @@ const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected}) 
     };
 
     reader.onload = () => {
-      setUploadedImage(reader.result as string);
-      if(onImageSelected){
-        onImageSelected(reader.result as string)
-      }
+      onImageSelected(reader.result as string);
       setLoading(false);
     };
 
@@ -46,16 +44,15 @@ const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected}) 
     <div className={classNames("w-full h-full bg-darker-gray cursor-pointer focus:outline-none overflow-clip", className)}>
       {loading ? (
         <Loader className="h-10 w-10"/>
-      ) : uploadedImage ? (
-
-        <img src={uploadedImage} alt="Uploaded" className="object-cover w-full h-full" />
       ) : (
         <div
           {...getRootProps()}
           className="flex flex-col items-center justify-center w-full h-full text-center"
         >
           <input {...getInputProps()} />
-          {isDragActive ? (
+          {uploadedImage ? (
+            <img src={uploadedImage} alt="Uploaded" className="object-cover w-full h-full" />
+          ) : isDragActive ? (
             <p className="text-gray-smooth text-sm">Drop the files here ...</p>
           ) : (
             <div className='flex flex-col items-center'>

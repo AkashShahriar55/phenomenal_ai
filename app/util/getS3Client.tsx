@@ -1,6 +1,5 @@
-import { SQSClient, GetQueueUrlCommand } from '@aws-sdk/client-sqs';
 import { getAwsCredentials} from './getAwsCredential';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 
 let s3Client: S3Client | undefined;
 

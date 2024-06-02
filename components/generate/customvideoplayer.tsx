@@ -1,39 +1,45 @@
 import React, { useEffect, useRef } from 'react';
+import ReactPlayer from 'react-player';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css'; // Import Video.js styles
 
 interface VideoPlayerProps {
-    options: videojs.PlayerOptions;
+    videosrc: string;
 }
 
-const CustomVideoPlayer: React.FC<VideoPlayerProps> = ({ options }) => {
-    const videoRef = useRef(null);
-    const playerRef = useRef<videojs.Player | null>(null);
+const CustomVideoPlayer: React.FC<VideoPlayerProps> = ({ videosrc }) => {
+    // const videoRef = useRef(null);
+    // const playerRef = useRef<videojs.Player | null>(null);
 
-    useEffect(() => {
-        if (videoRef.current && !playerRef.current) {
-            playerRef.current = videojs(videoRef.current, options, () => {
-                console.log('Player is ready');
-            });
-        }
+    // useEffect(() => {
+    //     if (videoRef.current && !playerRef.current) {
+    //         playerRef.current = videojs(videoRef.current, options, () => {
+    //             console.log('Player is ready');
+    //         });
+    //     }
 
-        return () => {
-            if (playerRef.current) {
-                playerRef.current.dispose();
-                playerRef.current = null;
-            }
-        };
-    }, [options]);
+    //     return () => {
+    //         if (playerRef.current) {
+    //             playerRef.current.dispose();
+    //             playerRef.current = null;
+    //         }
+    //     };
+    // }, [options]);
 
     return (
-        <div data-vjs-player className="my-4">
-            <video
-                ref={videoRef}
-                className="video-js vjs-theme-forest vjs-big-play-centered h-full w-full"
+        <div className='h-full w-full'>
+
+            <ReactPlayer
+            width="100%"
+            height="100%"
+            url={videosrc}
+            controls={true}
+            // light is usefull incase of dark mode
+            light={false}
+            // picture in picture
+            pip={false}
             />
-            <button className="absolute top-4 right-4">
-                <img src="/images/download-icon.svg" alt="cross" />
-            </button>
+             <source src={videosrc} type="video/mp4" />
 
         </div>
     );

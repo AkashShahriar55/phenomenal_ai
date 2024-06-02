@@ -9,7 +9,7 @@ import { sleep } from '@/lib/utils';
 interface SQSParams {
   jobID: string;
   duration: number;
-  message: string;
+  prompt: string;
 }
 
 interface SQSResponse {

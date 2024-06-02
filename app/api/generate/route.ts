@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import { getS3Client } from '@/app/util/getS3Client';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
+import { S3Client } from '@aws-sdk/client-s3';
+import { getAwsCredentials} from '@/app/util/getAwsCredential';
 
 export async function POST(req: Request) {
   try {
@@ -36,8 +37,9 @@ export async function POST(req: Request) {
     //   );
     // }
 
+
     const response = await sendMessage({
-      message: prompt,
+      prompt: prompt,
       duration: 4,
       jobID: jobID
     })
@@ -49,6 +51,11 @@ export async function POST(req: Request) {
 
     const name = jobID + ".mp4"
 
+    const s3Client2 = new S3Client({
+      region: "us-east-1",  
+      credentials: await getAwsCredentials(),
+    });
+
     const command = new GetObjectCommand({
       Bucket: process.env.BUCKET_NAME,
       Key: name as string,
@@ -58,7 +65,7 @@ export async function POST(req: Request) {
     let url
     try {
       const s3Client = await getS3Client()
-      url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+      url = await getSignedUrl(s3Client2, command, { expiresIn: 3600 }); // URL expires in 1 hour
       console.log(url)
     } catch (error) {
       console.error(error);

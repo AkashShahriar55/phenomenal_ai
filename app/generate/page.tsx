@@ -88,16 +88,16 @@ export default function Generate() {
        */
       const response = await axios.post("/api/generate", {
         prompt: values.prompt,
-      },{
+      }, {
         timeout: 1000 * 60 * 10
       });
 
-      if(response.data.url){
+      if (response.data.url) {
         setVideoUrl(response.data.url)
         setVideoState(VideoGenerationState.Loaded)
         console.log(response.data)
         setVideoName(response.data.name)
-      }else{
+      } else {
         setVideoState(VideoGenerationState.Failed)
       }
 
@@ -114,20 +114,23 @@ export default function Generate() {
       setLoading(false)
       router.refresh();
     }
-    
+
   };
 
 
 
 
-
+  function handleImageDelete() {
+    setUploadedImage(null)
+  }
+ 
 
 
   return (
     <>
       <div>
         {loading ? (
-          <GeneratingLoader />
+          <GeneratingLoader message="Generating video for you. Please don't close or refresh this page." />
         ) : (
           <div>
           </div>
@@ -138,8 +141,14 @@ export default function Generate() {
           {/* Left Panel */}
           <form onSubmit={handleSubmit(onSubmit)} action="" className="flex flex-col w-full md:w-1/2 space-y-4">
             <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-down" style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
-              <h2 className="text-sm font-bold text-gray-smooth">Input Image</h2>
-              <ImageUpload className="mt-2.5" onImageSelected={handleImageInput} />
+              <div className="flex w-full justify-between">
+                <h2 className="text-sm font-bold text-gray-smooth">Input Image</h2>
+                <button className="cursor-pointer" type="button" onClick={handleImageDelete}>
+                  <img src="/images/delete-icon.svg" alt="delete" className="" />
+                </button>
+              </div>
+
+              <ImageUpload className="mt-2.5" onImageSelected={handleImageInput}  uploadedImage={uploadedImage}/>
             </div>
             <div className="bg-darkest-gray p-5 flex-1  animate-fade-down" style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
               <div className="h-full flex flex-col items-center">
@@ -181,10 +190,12 @@ export default function Generate() {
                   <div className="h-full flex flex-col">
                     <div className="w-full  flex justify-between">
                       <p>{videoName}</p>
-                      <img src="/images/delete-icon.svg" alt="delete" className="" />
+                      <button className="cursor-pointer">
+                        <img src="/images/delete-icon.svg" alt="delete" className="" />
+                      </button>
                     </div>
                     <div className="relative h-full  mt-2.5">
-                      <CustomVideoPlayer options={videoJsOptions} />
+                      <CustomVideoPlayer videosrc={videoUrl!} />
                     </div>
                   </div>
                   <div className="bg-darker-gray rounded p-5 flex flex-col gap-4">
