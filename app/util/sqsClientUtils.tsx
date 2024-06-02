@@ -16,7 +16,7 @@ interface SQSResponse {
   jobID: string;
   status: string;
   s3_path: string;
-  description:string[];
+  description: string[];
 }
 
 async function getQueueUrl(queueName: string): Promise<string | undefined> {
@@ -42,7 +42,7 @@ export async function sendMessage(parameters: SQSParams) {
   return response;
 }
 
-export async function receiveMessages(jobID:string): Promise<SQSResponse | null> {
+export async function receiveMessages(jobID: string): Promise<SQSResponse | null> {
   const credentials = await getAwsCredentials()
   const queueUrl = await getQueueUrl(credentials.sqsQueueOutputName);
   const params = {
@@ -53,29 +53,23 @@ export async function receiveMessages(jobID:string): Promise<SQSResponse | null>
   const command = new ReceiveMessageCommand(params);
   const sqsClient = await getSqsClient()
 
-  const timeout = 1000 * 60 * 10;
-  const timeNow = Date.now()
-  
 
-  let data:SQSResponse | null = null
+  let data: SQSResponse | null = null
 
-  do{
-    const response = await sqsClient.send(command);
-    if (response.Messages && response.Messages.length > 0) {
-      const message = response.Messages[0];
-      const receiptHandle = message.ReceiptHandle
-      if(message.Body){
-        const value = JSON.parse(message.Body)
-        if(value.jobID == jobID){
-          data = value
-        }
+
+  const response = await sqsClient.send(command);
+  if (response.Messages && response.Messages.length > 0) {
+    const message = response.Messages[0];
+    const receiptHandle = message.ReceiptHandle
+    if (message.Body) {
+      const value = JSON.parse(message.Body)
+      if (value.jobID == jobID) {
+        data = value
       }
-      
-      await deleteMessage({queueUrl, receiptHandle});
-      await sleep(10000)
     }
 
-  }while(Date.now()-timeNow < timeout && data == null)
+    await deleteMessage({ queueUrl, receiptHandle });
+  }
 
   return data
 }

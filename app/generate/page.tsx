@@ -11,6 +11,7 @@ import { Form, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GeneratingLoader from "@/components/generate/modalloader";
 import { error } from "console";
+import { sleep } from "@/lib/utils";
 
 enum VideoGenerationState {
   Initial,
@@ -89,37 +90,62 @@ export default function Generate() {
        * Stores the response.
        */
 
-      const response = await fetch('/api/generate', {
+      const sendResponse = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt:values.prompt }),
+        body: JSON.stringify({ prompt: values.prompt }),
       });
-      console.error(response)
+      const sendData = await sendResponse.json()
+      const jobID = sendData.jobID
 
-      const data = await response.json()
-      
+      console.error("sendResponse----> " + sendData + " " + jobID)
 
-      if(response.ok){
-        setVideoUrl(data.url)
-        setVideoState(VideoGenerationState.Loaded)
-        console.log(data)
-        setVideoName(data.name)
-      }else{
-        setErrorMessage(data.error)
+      if (sendResponse.ok && jobID) {
+
+
+        const timeout = 1000 * 60 * 10;
+        const timeNow = Date.now()
+
+        let receiveResponse
+        do {
+          receiveResponse = await fetch(`/api/generate?jobID=${jobID}`);
+
+
+          if(receiveResponse.statusText != "NULL"){
+            break
+          }
+
+          sleep(1000 * 30)
+
+        } while (!receiveResponse.ok && Date.now() - timeNow < timeout)
+
+        const receiveData = await receiveResponse.json()
+        console.log("sendResponse----> " + receiveData + " " + jobID)
+
+        if (receiveResponse.ok) {
+          setVideoUrl(receiveData.url)
+          setVideoState(VideoGenerationState.Loaded)
+          setVideoName(receiveData.name)
+        } else {
+          setErrorMessage(receiveData.error)
+        }
+
       }
+
+
+
 
 
     } catch (error: any) {
       setLoading(false)
-      setErrorMessage(error as string)
-      console.error(error)
+      console.log(error)
 
       // if the user is not subscribed and there are no remaining free tries, it will show a modal
       // if (error.response.status === 403) {
       //   // proModal.onOpen();
-    
+
       // } else {
       //   console.log(error);
       //   // toast.error("Could not answer your question");
@@ -144,12 +170,6 @@ export default function Generate() {
   const closeModal = () => {
     setErrorMessage(undefined)
   };
-
-
-  useEffect(() => {
-    console.log("here is errrrror msg ------ > "+errorMessage)
-  }, [{errorMessage}]);
-
 
 
 
