@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     console.log(data)
 
     if (!data) {
-      return NextResponse.json({ error: "data not there" }, { status: 200, statusText:"NULL" });
+      return NextResponse.json({ error: "data not there" }, { status: 401, statusText:"NULL" });
     }else if(data.status == "Failed"){
       return NextResponse.json({ error: data?.description }, { status: 400 ,statusText:"Failed"});
     }
