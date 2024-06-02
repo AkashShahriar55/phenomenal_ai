@@ -16,7 +16,7 @@ interface SQSResponse {
   jobID: string;
   status: string;
   s3_path: string;
-  description:string;
+  description:string[];
 }
 
 async function getQueueUrl(queueName: string): Promise<string | undefined> {

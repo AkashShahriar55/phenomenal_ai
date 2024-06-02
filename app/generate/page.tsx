@@ -1,7 +1,7 @@
 "use client";
 import ImageUpload from "@/components/generate/imageupload";
 import TextareaWithCount from "@/components/generate/textareawithcount";
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import CustomVideoPlayer from "@/components/generate/customvideoplayer";
 import { GenerateFormData, GenerateFormSchema } from "@/lib/types";
 import * as z from "zod";
@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { Form, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GeneratingLoader from "@/components/generate/modalloader";
+import { error } from "console";
 
 enum VideoGenerationState {
   Initial,
@@ -22,6 +23,7 @@ export default function Generate() {
 
   const router = useRouter();
   const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [text, setText] = useState<string>('');
 
@@ -51,7 +53,7 @@ export default function Generate() {
   }, []);
 
   useEffect(() => {
-    if (uploadedImage && text.length > 0) {
+    if (text.length > 0) {
       setSubmitEnabled(true)
     } else {
       setSubmitEnabled(false)
@@ -86,30 +88,41 @@ export default function Generate() {
        * Send the messages to the API.
        * Stores the response.
        */
-      const response = await axios.post("/api/generate", {
-        prompt: values.prompt,
-      }, {
-        timeout: 1000 * 60 * 10
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt:values.prompt }),
       });
 
-      if (response.data.url) {
-        setVideoUrl(response.data.url)
+      const data = await response.json()
+      console.error(data)
+
+      if(response.ok){
+        setVideoUrl(data.url)
         setVideoState(VideoGenerationState.Loaded)
-        console.log(response.data)
-        setVideoName(response.data.name)
-      } else {
-        setVideoState(VideoGenerationState.Failed)
+        console.log(data)
+        setVideoName(data.name)
+      }else{
+        setErrorMessage(data.error)
       }
+
 
     } catch (error: any) {
       setLoading(false)
+      setErrorMessage(error as string)
+      console.error(error)
+
       // if the user is not subscribed and there are no remaining free tries, it will show a modal
-      if (error.response.status === 403) {
-        // proModal.onOpen();
-      } else {
-        console.log(error);
-        // toast.error("Could not answer your question");
-      }
+      // if (error.response.status === 403) {
+      //   // proModal.onOpen();
+    
+      // } else {
+      //   console.log(error);
+      //   // toast.error("Could not answer your question");
+      // }
     } finally {
       setLoading(false)
       router.refresh();
@@ -123,7 +136,21 @@ export default function Generate() {
   function handleImageDelete() {
     setUploadedImage(null)
   }
- 
+
+  const modalRef = useRef(null);
+
+
+  const closeModal = () => {
+    setErrorMessage(undefined)
+  };
+
+
+  useEffect(() => {
+    console.log("here is errrrror msg ------ > "+errorMessage)
+  }, [{errorMessage}]);
+
+
+
 
 
   return (
@@ -136,6 +163,20 @@ export default function Generate() {
           </div>
         )}
       </div>
+      {errorMessage ? (
+        <div>
+          <dialog ref={modalRef} id="my_modal_1" className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg text-blood-red">Something went wrong!</h3>
+              <p className="py-4">{errorMessage}</p>
+              <div className="modal-action">
+                <button className="btn" onClick={closeModal}>Close</button>
+              </div>
+            </div>
+          </dialog>
+        </div>
+      ) : (<div></div>)}
+
       <div className="absolute w-full bg-black bg-cover h-full px-20 flex items-center justify-center overflow-auto">
         <div className="flex flex-wrap-reverse w-full md:flex-nowrap md:space-y-0 md:space-x-4 h-screen pt-28 pb-12">
           {/* Left Panel */}
@@ -148,7 +189,7 @@ export default function Generate() {
                 </button>
               </div>
 
-              <ImageUpload className="mt-2.5" onImageSelected={handleImageInput}  uploadedImage={uploadedImage}/>
+              <ImageUpload className="mt-2.5" onImageSelected={handleImageInput} uploadedImage={uploadedImage} />
             </div>
             <div className="bg-darkest-gray p-5 flex-1  animate-fade-down" style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
               <div className="h-full flex flex-col items-center">

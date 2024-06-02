@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // if the messages are not valid, return a bad request response
     if (!prompt) {
-      return new NextResponse("Prompts are required", { status: 400 });
+      return NextResponse.json({error: "Prompts are required"},{status : 400});
     }
 
     // const freeTrial = await checkApiLimit(); // check if the user is on a free trial
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     //     { status: 403 }
     //   );
     // }
+    
 
 
     const response = await sendMessage({
@@ -48,6 +49,11 @@ export async function POST(req: Request) {
 
     const data = await receiveMessages(jobID)
     console.log(data)
+
+    if(data?.status == "Failed"){
+      return NextResponse.json({error: data?.description},{status : 400});
+    }
+
 
     const name = jobID + ".mp4"
 
@@ -64,11 +70,10 @@ export async function POST(req: Request) {
 
     let url
     try {
-      const s3Client = await getS3Client()
       url = await getSignedUrl(s3Client2, command, { expiresIn: 3600 }); // URL expires in 1 hour
       console.log(url)
     } catch (error) {
-      console.error(error);
+      return NextResponse.json({error},{status : 500});
     }
 
 
@@ -80,6 +85,6 @@ export async function POST(req: Request) {
     return NextResponse.json({url,name});
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({error},{status : 500});
   }
 }
