@@ -39,6 +39,7 @@ export async function sendMessage(parameters: SQSParams) {
   const command = new SendMessageCommand(params);
   const client = await getSqsClient()
   const response = await client.send(command);
+  console.log(response)
   return response;
 }
 
@@ -58,6 +59,7 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
 
 
   const response = await sqsClient.send(command);
+  console.log(response)
   if (response.Messages && response.Messages.length > 0) {
     const message = response.Messages[0];
     const receiptHandle = message.ReceiptHandle
@@ -65,12 +67,13 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
       const value = JSON.parse(message.Body)
       if (value.jobID == jobID) {
         data = value
+        await deleteMessage({ queueUrl, receiptHandle });
       }
     }
-
-    await deleteMessage({ queueUrl, receiptHandle });
+    
   }
 
+  console.log(data)
   return data
 }
 

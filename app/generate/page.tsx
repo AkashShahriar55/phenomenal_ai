@@ -105,7 +105,7 @@ export default function Generate() {
       if (sendResponse.ok && jobID) {
 
 
-        const timeout = 1000 * 60 * 10;
+        const timeout = 1000 * 60 * 60;
         const timeNow = Date.now()
 
         let receiveResponse
@@ -113,13 +113,13 @@ export default function Generate() {
           receiveResponse = await fetch(`/api/generate?jobID=${jobID}`);
 
 
-          if(receiveResponse.status != 401){
+          if(receiveResponse.status != 404){
             break
           }
 
           await sleep(1000 * 30)
 
-        } while (!receiveResponse.ok && Date.now() - timeNow < timeout)
+        } while (!receiveResponse.ok &&Date.now() - timeNow < timeout)
 
         const receiveData = await receiveResponse.json()
         console.log("sendResponse----> " + receiveData + " " + jobID)
