@@ -119,7 +119,7 @@ export default function Generate() {
 
           await sleep(1000 * 30)
 
-        } while (!receiveResponse.ok && Date.now() - timeNow < timeout)
+        } while (Date.now() - timeNow < timeout)
 
         const receiveData = await receiveResponse.json()
         console.log("sendResponse----> " + receiveData + " " + jobID)
