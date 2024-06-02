@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       url = await getSignedUrl(s3Client2, command, { expiresIn: 3600 }); // URL expires in 1 hour
       console.log(url)
     } catch (error) {
-      return NextResponse.json({error},{status : 500});
+      return NextResponse.json({error:error},{status : 500});
     }
 
 
