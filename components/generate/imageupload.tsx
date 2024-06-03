@@ -1,16 +1,16 @@
 "use client";
 import React, { useCallback, useState } from 'react';
-import { useDropzone,Accept } from 'react-dropzone';
+import { useDropzone, Accept } from 'react-dropzone';
 import classNames, { Argument } from "classnames";
 import Loader from './loader';
 
 interface ImageUploadProps {
   className: string;
-  onImageSelected: (image:string|null) => void;
-  uploadedImage:string | null
+  onImageSelected: (image: string | null) => void;
+  uploadedImage: string | null
 }
 
-const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected, uploadedImage}) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ className, onImageSelected, uploadedImage }) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -37,13 +37,13 @@ const ImageUpload:React.FC<ImageUploadProps> = ({ className , onImageSelected, u
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {"image/png":[".png"],"image/jpg":['.jpeg','jpg']},
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
   });
 
   return (
     <div className={classNames("w-full h-full bg-darker-gray cursor-pointer focus:outline-none overflow-clip", className)}>
       {loading ? (
-        <Loader className="h-10 w-10"/>
+        <Loader className="h-10 w-10" />
       ) : (
         <div
           {...getRootProps()}

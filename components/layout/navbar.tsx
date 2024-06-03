@@ -22,7 +22,9 @@ export default function NavBar({ session }: { session: Session | null }) {
   const getNavComponent = () => {
     if (pathname.startsWith('/generate')) { // Updated condition
       return <GenerateNavBar router={router} />;
-    } else if (pathname.startsWith('/')) {
+    } else if (pathname.startsWith("/login") || pathname.startsWith("/signup")){
+      return <SimpleNavbar router={router} />;
+    }else if (pathname.startsWith('/')) {
       return <HomeNavBar router={router} />;
     }
   };
@@ -68,6 +70,15 @@ function HomeNavBar({ router }: { router: AppRouterInstance }) {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+
+function SimpleNavbar({ router }: { router: AppRouterInstance }) {
+  return (
+    <div className="flex py-5 px-20 items-center justify-between w-full bg-gradient-to-b from-black to-transparent">
+      <Logo />
     </div>
   )
 }

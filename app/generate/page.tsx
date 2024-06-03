@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import GeneratingLoader from "@/components/generate/modalloader";
 import { error } from "console";
 import { sleep } from "@/lib/utils";
+import Survay from "@/components/generate/survay";
 
 enum VideoGenerationState {
   Initial,
@@ -22,14 +23,18 @@ enum VideoGenerationState {
 
 export default function Generate() {
 
+
+
   const router = useRouter();
   const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [text, setText] = useState<string>('');
-
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoName, setVideoName] = useState<string | null>(null);
+  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Initial);
+
+
 
   const videoJsOptions = {
     autoplay: false,
@@ -43,7 +48,6 @@ export default function Generate() {
     fluid: false, // Makes the player responsive
   };
 
-  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Initial);
 
   const handleImageInput = useCallback((image: string | null) => {
     setUploadedImage(image)
@@ -52,6 +56,23 @@ export default function Generate() {
   const handleNonEmptyInput = useCallback((text: string) => {
     setText(text)
   }, []);
+
+
+  const closeModal = () => {
+    setErrorMessage(undefined)
+  };
+
+
+  function handleGenerationDelete() {
+    setVideoState(VideoGenerationState.Initial)
+  }
+
+
+  function handleImageDelete() {
+    setUploadedImage(null)
+  }
+
+
 
   useEffect(() => {
     if (text.length > 0) {
@@ -95,7 +116,7 @@ export default function Generate() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: values.prompt }),
+        body: JSON.stringify({ prompt: values.prompt, duration: values.duration }),
       });
       const sendData = await sendResponse.json()
       const jobID = sendData.jobID
@@ -109,7 +130,7 @@ export default function Generate() {
           receiveResponse = await fetch(`/api/generate?jobID=${jobID}`);
 
 
-          if(receiveResponse.status != 404){
+          if (receiveResponse.status != 404) {
             break
           }
 
@@ -156,20 +177,6 @@ export default function Generate() {
 
 
 
-  function handleImageDelete() {
-    setUploadedImage(null)
-  }
-
-  const modalRef = useRef(null);
-
-
-  const closeModal = () => {
-    setErrorMessage(undefined)
-  };
-
-
-
-
   return (
     <>
       <div>
@@ -182,7 +189,7 @@ export default function Generate() {
       </div>
       {errorMessage ? (
         <div>
-          <dialog ref={modalRef} id="my_modal_1" className="modal modal-open">
+          <dialog id="my_modal_1" className="modal modal-open">
             <div className="modal-box">
               <h3 className="font-bold text-lg text-blood-red">Something went wrong!</h3>
               <p className="py-4">{errorMessage}</p>
@@ -201,17 +208,29 @@ export default function Generate() {
             <div className="flex flex-col bg-darkest-gray p-5 h-1/2 animate-fade-down" style={{ animationDelay: "0.15s", animationFillMode: "forwards" }}>
               <div className="flex w-full justify-between">
                 <h2 className="text-sm font-bold text-gray-smooth">Input Image</h2>
-                <button className="cursor-pointer" type="button" onClick={handleImageDelete}>
-                  <img src="/images/delete-icon.svg" alt="delete" className="" />
-                </button>
+                {uploadedImage ? (
+                  <button className="cursor-pointer" type="button" onClick={handleImageDelete}>
+                    <img src="/images/delete-icon.svg" alt="image-delete" className="" />
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+
               </div>
 
               <ImageUpload className="mt-2.5" onImageSelected={handleImageInput} uploadedImage={uploadedImage} />
             </div>
             <div className="bg-darkest-gray p-5 flex-1  animate-fade-down" style={{ animationDelay: "0.25s", animationFillMode: "forwards" }}>
               <div className="h-full flex flex-col items-center">
-                <div className="flex-1 w-full h-full ">
-
+                <div className="w-full flex items-center">
+                  <select defaultValue={4} className="select mr-5 max-w-xs"  {...register('duration', { required: 'duration is required' })}>
+                    <option value={4}>4s</option>
+                    <option value={8}>8s</option>
+                    <option value={12}>12s</option>
+                  </select>
+                  <p>{errors.duration?.message}</p>
+                </div>
+                <div className="flex-1 w-full h-full mt-5">
                   <TextareaWithCount
                     maxLength={320}
                     onNonEmptyInput={handleNonEmptyInput}
@@ -230,6 +249,7 @@ export default function Generate() {
                 >
                   Submit
                 </button>
+
               </div>
 
             </div>
@@ -248,45 +268,15 @@ export default function Generate() {
                   <div className="h-full flex flex-col">
                     <div className="w-full  flex justify-between">
                       <p>{videoName}</p>
-                      <button className="cursor-pointer">
-                        <img src="/images/delete-icon.svg" alt="delete" className="" />
+                      <button className="cursor-pointer" onClick={handleGenerationDelete}>
+                        <img src="/images/delete-icon.svg" alt="video-delete" className="" />
                       </button>
                     </div>
                     <div className="relative h-full  mt-2.5">
                       <CustomVideoPlayer videosrc={videoUrl!} />
                     </div>
                   </div>
-                  <div className="bg-darker-gray rounded p-5 flex flex-col gap-4">
-                    <div className="flex justify-between">
-                      <p>Help us improve</p>
-                      <img src="/images/cross-icon.svg" alt="cross" className="" />
-                    </div>
-                    <p>Did the video accurately represent the prompt you provided?</p>
-                    <div className="flex flex-row justify-between items-end ">
-                      <div className="flex gap-3" >
-                        <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#E40513]">
-                          <img src="/images/level-1-icon.svg" alt="cross" className="" />
-                        </button>
-                        <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#FA9006]">
-                          <img src="/images/level-2-icon.svg" alt="cross" className="" />
-                        </button>
-                        <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#F4CA07] items-center">
-                          <img src="/images/level-3-icon.svg" alt="cross" className="" />
-                        </button>
-                        <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#ADD805]">
-                          <img src="/images/level-4-icon.svg" alt="cross" className="" />
-                        </button>
-                        <button className="aspect-square rounded p-2.5 max-h-10 max-w-10 bg-[#28A738]">
-                          <img src="/images/level-5-icon.svg" alt="cross" className="" />
-                        </button>
-                      </div>
-
-                      <p className="">01/03</p>
-
-                    </div>
-
-
-                  </div>
+                  <Survay />
                 </div>
               ) : (
                 <p>Your creations will show up here failed.</p>

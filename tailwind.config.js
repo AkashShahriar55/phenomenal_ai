@@ -19,6 +19,7 @@ module.exports = {
         'darktext':'#111111',
         'darkgray':'#D2D2D2',
         'blood-red':'#FC0808',
+        'positive-green':'#28A738'
       },
       backgroundColor:{
         'light-gray':'#F2F2F2',
@@ -34,6 +35,7 @@ module.exports = {
         'gray-dark':'#333333',
         'gray-smooth':'#D2D2D2',
         'blood-red':'#FC0808',
+        'on-gray':'#555555'
       },
       placeholderColor:{
         'gray-light':'#BFBFBF',

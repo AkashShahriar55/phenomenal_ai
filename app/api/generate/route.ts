@@ -12,7 +12,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   try {
     // const { userId } = auth(); // get the user ID from the session (Clerk)
     const body = await req.json(); // get the request body
-    const { prompt }: { prompt: string } = body; // get the messages from the request body
+    const { prompt,duration }: { prompt: string,duration:string } = body; // get the messages from the request body
 
     const jobID = uuidv4();
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const response = await sendMessage({
       prompt: prompt,
-      duration: 4,
+      duration: duration,
       jobID: jobID
     })
 
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     let url
     try {
-      url = await getSignedUrl(s3Client2, command, { expiresIn: 3600 }); // URL expires in 1 hour
+      url = await getSignedUrl(s3Client2, command, { expiresIn: 60 * 60 * 24 }); // URL expires in 1 day
       console.log(url)
     } catch (error) {
       return NextResponse.json({ error: error }, { status: 500 });

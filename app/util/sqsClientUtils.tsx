@@ -8,7 +8,7 @@ import { sleep } from '@/lib/utils';
 
 interface SQSParams {
   jobID: string;
-  duration: number;
+  duration: string;
   prompt: string;
 }
 
@@ -47,7 +47,8 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
   const credentials = await getAwsCredentials()
   const queueUrl = await getQueueUrl(credentials.sqsQueueOutputName);
   const params = {
-    QueueUrl: queueUrl
+    QueueUrl: queueUrl,
+    MaxNumberOfMessages:10
   };
 
 
@@ -60,17 +61,20 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
 
   const response = await sqsClient.send(command);
   console.log(response)
+
   if (response.Messages && response.Messages.length > 0) {
-    const message = response.Messages[0];
-    const receiptHandle = message.ReceiptHandle
-    if (message.Body) {
-      const value = JSON.parse(message.Body)
-      if (value.jobID == jobID) {
-        data = value
-        await deleteMessage({ queueUrl, receiptHandle });
+    for(let i = 0 ; i < response.Messages.length ; i++ ){
+      const message = response.Messages[i];
+      const receiptHandle = message.ReceiptHandle
+      if (message.Body) {
+        const value = JSON.parse(message.Body)
+        if (value.jobID == jobID) {
+          data = value
+          await deleteMessage({ queueUrl, receiptHandle });
+          break
+        }
       }
     }
-    
   }
 
   console.log(data)
