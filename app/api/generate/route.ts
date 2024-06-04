@@ -49,6 +49,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 export async function GET(req: NextRequest) {
   try {
+    
     const reqUrl = new URL(req.url)
 
     const searchParams = new URLSearchParams(reqUrl.searchParams)
@@ -68,6 +69,7 @@ export async function GET(req: NextRequest) {
     }else if(data.status == "Failed"){
       return NextResponse.json({ error: data?.description }, { status: 400 ,statusText:"Failed"});
     }
+
 
 
     const name = jobID + ".mp4"
@@ -97,9 +99,9 @@ export async function GET(req: NextRequest) {
     //   await incrementApiLimit();
     // }
 
-    console.log({ url, name })
 
-    return NextResponse.json({ url, name });
+
+    return NextResponse.json({ url });
 
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);

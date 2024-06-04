@@ -24,6 +24,8 @@ export default function NavBar({ session }: { session: Session | null }) {
       return <GenerateNavBar router={router} />;
     } else if (pathname.startsWith("/login") || pathname.startsWith("/signup")){
       return <SimpleNavbar router={router} />;
+    }else if(pathname.startsWith("/trynow")){
+      return <></>
     }else if (pathname.startsWith('/')) {
       return <HomeNavBar router={router} />;
     }
@@ -57,7 +59,7 @@ function HomeNavBar({ router }: { router: AppRouterInstance }) {
       <div>
         <div>
           <button
-            className="rounded-md hover:border border-white mr-2 p-1.5 px-4 text-sm text-white transition-all"
+            className="rounded-md hover:bg-blood-red border-white mr-2 p-1.5 px-4 text-sm text-white transition-all"
             onClick={() => router.push('/login')}
           >
             LOGIN

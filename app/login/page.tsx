@@ -1,15 +1,26 @@
-import Card from "@/components/home/card";
-import { DEPLOY_URL } from "@/lib/constants";
-import { Github, Twitter } from "@/components/shared/icons";
-import WebVitals from "@/components/home/web-vitals";
-import ComponentGrid from "@/components/home/component-grid";
-import Image from "next/image";
-import BackgroundImage from "@/components/layout/background";
-import { nFormatter } from "@/lib/utils";
-
-export default async function Login() {
+"use client";
+import PInput from "@/components/shared/input";
+import {  SignInFormSchema, SignUpData, SignUpFormSchema } from "@/lib/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 
+export default function Login() {
+
+  /**
+  * Form for the prompt for the code generation.
+  * Zod used for validation.
+  */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setError,
+    watch
+  } = useForm<Pick<SignUpData,"email" | "password" | "remember_me">>({
+    resolver: zodResolver(SignInFormSchema), // Apply the zodResolver
+    mode: 'onChange', // Validate on change
+  });
 
 
   const imageSrc = "/images/logout_bg.png";
@@ -20,62 +31,69 @@ export default async function Login() {
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative z-10 w-full max-w-540 bg-white bg-opacity-90 p-14 rounded-lg shadow-lg flex flex-col animate-fade-up">
           <div className="flex flex-col items-center ">
-            <h2 className="text-2xl mb-2"> <span className="font-semibold">Create</span> an account</h2>
+            <div className="flex items-center gap-1">
+              <h2 className="text-xl mb-2 text-gray-dark">Welcome to</h2>
+              <img className="h-5" src="/dark-icon.svg" />
+            </div>
+
             <p className="mb-6 text-sm text-gray-normal">
-            Don’t have an account? <a href="/signup" className="text-black italic font-bold underline">Sign up for free</a>
+              Don’t have an account? <a href="/signup" className="text-black italic font-bold underline">Sign up for free</a>
             </p>
           </div>
           <div className="flex flex-col">
             <div className="">
               <form>
                 <div className="mt-4">
-                  <label className="block text-sm text-gray-normal">Email</label>
-                  <input
-                    type="email"
-                    placeholder="Placeholder"
-                    className="mt-1 block w-full min-h-12 placeholder-gray-light px-3 py-2 border bg-light-gray border-transparent rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                <PInput
+                    type="text"
+                    placeholder="Enter your email"
+                    error={errors.email}
+                    name="email"
+                    register={register}
+                    label="Email"
                   />
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm text-gray-normal">Password</label>
-                  <input
+                <PInput
                     type="password"
-                    placeholder="Placeholder"
-                    className="mt-1 block w-full min-h-12 placeholder-gray-light px-3 py-2 border bg-light-gray border-transparent rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Enter a new password"
+                    error={errors.password}
+                    name="password"
+                    register={register}
+                    label="Password"
+                    info="It must be a combination of minimum 8 letters, numbers, and symbols."
                   />
-                  <p className="text-xs text-gray-normal mt-1 italic">
-                    It must be a combination of minimum 8 letters, numbers, and symbols.
-                  </p>
                 </div>
                 <div className="mt-4 flex items-center">
-                  <input
+                <input
                     type="checkbox"
-                    className="h-4 w-4 text-indigo-600 border-transparent rounded"
+                    className="h-4 w-4 disabled:text-lighttext disabled:border-lighttext text-gray-dark "
+                    disabled={!isValid}
                   />
-                  <label className="ml-2 block text-sm text-gray-light">Remember me</label>
+                  {isValid ? <label className="ml-2 block text-sm text-gray-dark">Remember me</label> : <label className="ml-2 block text-sm text-lighttext">Remember me</label>}
                 </div>
                 <button
                   type="submit"
-                  className="mt-6 w-full min-h-12 bg-normal-gray text-white py-2 rounded-md shadow-sm font-medium"
-                  disabled={true}
+                  className="mt-6 w-full min-h-12 disabled:bg-normal-gray text-white py-2 rounded-md shadow-sm font-medium bg-[#FC0808]"
+                  disabled={!isValid}
                 >
-                  REGISTER
+                  LOGIN
                 </button>
               </form>
             </div>
             <div className="flex">
-              <div className="flex-1 h-px bg-gray-300">
+              <div className="flex-1 h-px bg-dark-gray">
               </div>
-              <p className="m-5 w-full text-center">OR</p>
-              <div className="flex-1 h-px bg-gray-300">
+              <p className="m-5 w-full text-center text-gray-dark">OR</p>
+              <div className="flex-1 h-px bg-dark-gray">
 
               </div>
             </div>
 
             <div className="flex flex-col items-center justify-center">
-              <button className="min-h-12 w-full bg-white text-black border border-gray-300 py-2 rounded-md shadow-sm font-medium hover:bg-gray-100 flex items-center justify-center">
-                <img src="/images/google-logo.svg" alt="Google" className="w-5 h-5 mr-2 text-gray-normal" />
-                Sign up with Google
+              <button className="min-h-12 w-full bg-white text-black border border-darktext py-2 rounded-md shadow-sm font-medium hover:bg-gray-100 flex items-center justify-center">
+                <img src="/images/google-logo.svg" alt="Google" className="w-5 h-5 mr-2 text-gray-dark" />
+                Log in with Google
               </button>
             </div>
           </div>

@@ -5,9 +5,10 @@ import 'video.js/dist/video-js.css'; // Import Video.js styles
 
 interface VideoPlayerProps {
     videosrc: string;
+    filename:string
 }
 
-const CustomVideoPlayer: React.FC<VideoPlayerProps> = ({ videosrc }) => {
+const CustomVideoPlayer: React.FC<VideoPlayerProps> = ({ videosrc, filename }) => {
 
     // const videoRef = useRef(null);
     // const playerRef = useRef<videojs.Player | null>(null);
@@ -43,7 +44,7 @@ const CustomVideoPlayer: React.FC<VideoPlayerProps> = ({ videosrc }) => {
             
             <source src={videosrc} type="video/mp4" />
 
-            <a className = "absolute top-4 right-4 cursor-pointer" href={videosrc} download>
+            <a className = "absolute top-4 right-4 cursor-pointer" href={videosrc} download="filename">
                 <img src="/images/download-icon.svg" alt="download" className="" />
             </a>
 

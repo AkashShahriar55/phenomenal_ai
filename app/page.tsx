@@ -25,7 +25,7 @@ export default async function Home() {
             PhenomenAI is a future-proof GenAI video creation ecosystem to add intelligence to your creativity,
             connections, community, and workflow
           </p>
-          <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded">TRY NOW</button>
+          <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded" ><a href="/trynow">TRY NOW</a></button>
         </div>
         
       </div>

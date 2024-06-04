@@ -33,21 +33,7 @@ export default function Generate() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoName, setVideoName] = useState<string | null>(null);
   const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Initial);
-
-
-
-  const videoJsOptions = {
-    autoplay: false,
-    controls: true,
-    sources: [
-      {
-        src: videoUrl,
-        type: 'video/mp4',
-      },
-    ],
-    fluid: false, // Makes the player responsive
-  };
-
+  const [loading, setLoading] = useState(false);
 
   const handleImageInput = useCallback((image: string | null) => {
     setUploadedImage(image)
@@ -82,7 +68,7 @@ export default function Generate() {
     }
   }, [uploadedImage, text]);
 
-  const [loading, setLoading] = useState(false);
+ 
 
   /**
    * Form for the prompt for the code generation.
@@ -144,7 +130,15 @@ export default function Generate() {
         if (receiveResponse.ok) {
           setVideoUrl(receiveData.url)
           setVideoState(VideoGenerationState.Loaded)
-          setVideoName(receiveData.name)
+          // Remove special characters and punctuation
+          const cleanedString = values.prompt.replace(/[^\w\s]/gi, '');
+
+          // Split the string into words
+          const wordsArray = cleanedString.split(/\s+/);
+
+          // Concatenate words with an underscore
+          const transformedString = wordsArray.join('_');
+          setVideoName(transformedString+".mp4")
         } else {
           setErrorMessage(receiveData.error)
         }
@@ -267,13 +261,13 @@ export default function Generate() {
                 <div className=" h-full w-full flex flex-col gap-4">
                   <div className="h-full flex flex-col">
                     <div className="w-full  flex justify-between">
-                      <p>{videoName}</p>
+                      <p>{videoName && videoName.length > 50 ? videoName.substring(0, 50) + '...' : videoName}</p>
                       <button className="cursor-pointer" onClick={handleGenerationDelete}>
                         <img src="/images/delete-icon.svg" alt="video-delete" className="" />
                       </button>
                     </div>
                     <div className="relative h-full  mt-2.5">
-                      <CustomVideoPlayer videosrc={videoUrl!} />
+                      <CustomVideoPlayer videosrc={videoUrl!} filename={videoName!} />
                     </div>
                   </div>
                   <Survay />
