@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
             throw response;
           }
 
-          return { ...data.user, name: `${data.user.firstName} ${data.user.lastName}`, accessToken: data?.token };
+          return { ...data.user, name: `${data.user.firstName} ${data.user.lastName}`, accessToken: data?.token , accessTokenExpires: Date.now() +  data.tokenExpires , refreshToken: data.refreshToken};
         } catch (error) {
           if (error instanceof Response) {
             console.log("login error---->"+JSON.stringify(error))
