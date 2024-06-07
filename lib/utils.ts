@@ -71,3 +71,12 @@ export const truncate = (str: string, length: number) => {
 export function sleep(ms:number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const jwt = {
+  decode: (token: string | undefined) => {
+    if (!token) return;
+
+    return JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+  },
+};
+

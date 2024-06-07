@@ -5,6 +5,7 @@ import Nav from "@/components/layout/nav";
 import Footer from "@/components/layout/footer";
 import { Suspense } from "react";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
+import SessionWrapper from "@/components/sessionWrapper";
 
 export const metadata = {
   title: "Phenomenal.ai",
@@ -19,17 +20,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={cx(sfPro.variable, inter.variable)}>
+    <SessionWrapper>
+      <html lang="en">
+        <body className={cx(sfPro.variable, inter.variable)}>
           <Suspense fallback="...">
             <Nav />
           </Suspense>
           <main className="">
             {children}
           </main>
-          <Footer />
           <VercelAnalytics />
-      </body>
-    </html>
+        </body>
+      </html>
+    </SessionWrapper>
   );
 }

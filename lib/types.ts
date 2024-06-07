@@ -1,3 +1,4 @@
+import { DefaultUser } from "next-auth";
 import * as z from "zod";
 
 /**
@@ -21,11 +22,11 @@ export type GenerateFormData = {
 
 
 export const SignUpFormSchema: z.ZodType<SignUpData> = z.object({
-  first_name: z.string()
+  firstName: z.string()
     .min(2, 'First name must be at least 2 characters long')
     .max(30, 'First name must be at most 30 characters long')
     .regex(/^[A-Za-z]+$/, 'First name must contain only alphabetic characters'),
-  last_name: z.string()
+  lastName: z.string()
     .min(2, 'Last name must be at least 2 characters long')
     .max(30, 'Last name must be at most 30 characters long')
     .regex(/^[A-Za-z]+$/, 'Last name must contain only alphabetic characters'),
@@ -54,10 +55,11 @@ export const SignInFormSchema: z.ZodType<Partial<SignUpData>> = z.object({
 
 
 export type SignUpData = {
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   remember_me?: boolean;
 }
+
 

@@ -1,19 +1,7 @@
-import Card from "@/components/home/card";
-import { DEPLOY_URL } from "@/lib/constants";
-import { Github, Twitter } from "@/components/shared/icons";
-import WebVitals from "@/components/home/web-vitals";
-import ComponentGrid from "@/components/home/component-grid";
-import Image from "next/image";
-import BackgroundImage from "@/components/layout/background";
-import { nFormatter } from "@/lib/utils";
+import { auth } from "@/lib/auth";
 
-
-export default async function Home() {
-
-
-  
-  const imageSrc = "/images/logout_bg.png";
-
+export default async function Landing() {
+  const session = await auth()
   return (
     <>
       <div className="absolute w-full bg-logout bg-cover h-screen flex items-center justify-center">
@@ -25,11 +13,16 @@ export default async function Home() {
             PhenomenAI is a future-proof GenAI video creation ecosystem to add intelligence to your creativity,
             connections, community, and workflow
           </p>
-          <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded" ><a href="/trynow">TRY NOW</a></button>
+          {
+            !session ? <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded" ><a href="/trynow">TRY NOW</a></button> : <button className="px-6 py-3 text-lg font-bold mt-7 text-white bg-red-600 rounded" ><a href="/generate">Generate</a></button>
+          }
+          
         </div>
         
       </div>
     
     </>
   );
+
+  
 }

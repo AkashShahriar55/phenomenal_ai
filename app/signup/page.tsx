@@ -1,12 +1,54 @@
 "use client";
 import PInput from "@/components/shared/input";
+import fetchClient from "@/lib/fetch-client";
 import { SignUpData, SignUpFormSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 
 export default function SignUp() {
+
+  async function onSubmit(data:SignUpData) {
+    
+
+    try {
+      const response = await fetchClient({
+        method: "POST",
+        url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/email/register",
+        body: JSON.stringify(data),
+      });
+
+      console.log("-----register---- \n" + JSON.stringify(response))
+
+      if (!response.ok) {
+        throw response;
+      }
+
+      const credentials = {
+        email: data.email,
+        password: data.password,
+      };
+
+      signIn("credentials", credentials);
+    } catch (error) {
+      
+      if (error instanceof Response) {
+        const response = await error.json();
+        console.log("-----register---- \n" + JSON.stringify(response))
+        if (!response.errors) {
+          throw error;
+        }
+
+        return Object.keys(response.errors).map((errorKey) => {
+          setError(errorKey, { type: 'manual', message: response.errors[errorKey] });
+        });
+      }
+
+      throw new Error("An error has occurred during registration request");
+    }
+  }
 
 
   /**
@@ -18,10 +60,12 @@ export default function SignUp() {
     handleSubmit,
     formState: { errors, isValid },
     setError,
-    watch
+    watch,
+    clearErrors
   } = useForm<SignUpData>({
     resolver: zodResolver(SignUpFormSchema), // Apply the zodResolver
-    mode: 'onChange', // Validate on change
+    mode: 'onChange', // Validate on change,
+    reValidateMode: 'onChange'
   });
 
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -47,23 +91,25 @@ export default function SignUp() {
           </div>
           <div className="flex">
             <div className="w-1/2 pr-9">
-              <form>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-2 gap-5">
                   <PInput
                     type="text"
                     placeholder="Enter your first name"
-                    error={errors.first_name}
-                    name="first_name"
+                    error={errors.firstName}
+                    name="firstName"
                     register={register}
                     label="First Name"
+                    onChange={()=>clearErrors('firstName')}
                   />
                   <PInput
                     type="text"
                     placeholder="Enter your last name"
-                    error={errors.last_name}
-                    name="last_name"
+                    error={errors.lastName}
+                    name="lastName"
                     register={register}
                     label="Last Name"
+                    onChange={()=>clearErrors('lastName')}
                   />
                 </div>
                 <div className="mt-4">
@@ -74,6 +120,7 @@ export default function SignUp() {
                     name="email"
                     register={register}
                     label="Email"
+                    onChange={()=>clearErrors('email')}
                   />
                 </div>
                 <div className="mt-4">
@@ -87,6 +134,8 @@ export default function SignUp() {
                     info="It must be a combination of minimum 8 letters, numbers, and symbols."
                     endIconSrc={endSrc}
                     onEndIconClicked={handlePasswordVisibility}
+              
+                    onChange={()=>clearErrors('password')}
                   />
                 </div>
                 <div className="mt-4 flex items-center">

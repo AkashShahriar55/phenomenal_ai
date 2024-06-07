@@ -19,7 +19,8 @@ interface PInputProps<Type extends FieldValues> {
     endIconSrc?: string;
     onEndIconClicked?: () => void;
     required?:boolean,
-    textColor?: string
+    textColor?: string,
+    onChange?: (event:any) => void
 }
 
 
@@ -38,7 +39,8 @@ function PInput<Type extends FieldValues>({
     endIconSrc,
     onEndIconClicked,
     required,
-    textColor
+    textColor,
+    onChange
 }:PInputProps<Type>)  {
     return (
         <div className={classNames(className)}>
@@ -51,7 +53,8 @@ function PInput<Type extends FieldValues>({
                     className="block w-full  invalid:border-blood-red text-gray-dark placeholder-gray-light px-3 py-2 min-h-12 bg-light-gray border border-transparent  rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     {...register(name, {
                         valueAsNumber,
-                        required: required
+                        required: required,
+                        onChange: onChange 
                     })}
                     aria-invalid={error?.message ? "true" : "false"}
                 />
