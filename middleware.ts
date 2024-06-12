@@ -10,8 +10,7 @@ export default withAuth(
     const isAuthRoute = authRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
     const isVerifyRoute = verifyRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
     const isGuestRoute = guestRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
-    
-    console.log("token from middleware ->>>>>>> \n" + JSON.stringify(token))
+  
 
     if (!token && (isAuthRoute || isVerifyRoute)) {
       const redirectUrl = new URL("/login", request.url);
@@ -24,6 +23,8 @@ export default withAuth(
         if(!isVerifyRoute){
           return NextResponse.redirect(new URL("/confirm-email", request.url));
         }
+      }else if(token.status && token.status.id === "1" && isVerifyRoute){
+          return NextResponse.redirect(new URL("/  ", request.url));
       }
     }
   },
@@ -36,6 +37,6 @@ export default withAuth(
   }
 );
 
-const authRoutes = ["/generate" , "/allassets"];
+const authRoutes = ["/generate" , "/allassets", "/accountsettings"];
 const verifyRoutes = ["/request-email-verification", "/verify-email","/confirm-email"];
 const guestRoutes = ["/forgot-password", "/login", "/password-reset", "/signup"];

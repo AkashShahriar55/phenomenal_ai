@@ -1,11 +1,27 @@
 import fetchClient from "@/lib/fetch-client";
 import { jwt } from "@/lib/utils";
-import { getServerSession, type NextAuthOptions, type User } from "next-auth";
-import type { JWT } from "next-auth/jwt";
+import { DefaultSession, getServerSession, type NextAuthOptions, type User } from "next-auth";
+import type { DefaultJWT, JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { LoginResponse } from "./models";
+import GoogleProvider from "next-auth/providers/google";
+import { LoginResponse, Role, Status } from "./models";
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next";
-import { tokenToString } from "typescript";
+import { inter } from "@/app/fonts";
+import { json } from "stream/consumers";
+
+
+export interface JWTObject extends DefaultJWT{
+  id?:string,
+  role?:Role,
+  status?:Status,
+  firstName?:string,
+  lastName?:string,
+  accessToken?:string,
+  refreshToken?:string,
+  exp?:string,
+}
+
+
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -42,16 +58,28 @@ export const authOptions: NextAuthOptions = {
           }
 
           const data: LoginResponse = await response.json();
-          console.log("login---->"+JSON.stringify(data))
+      
 
           if (!data?.token) {
             throw response;
           }
 
-          return { ...data.user, name: `${data.user.firstName} ${data.user.lastName}`, accessToken: data?.token , accessTokenExpires: Date.now() +  data.tokenExpires , refreshToken: data.refreshToken};
+          return{
+            id:data.user.id,
+            email:data.user.email,
+            role:data.user.role,
+            status:data.user.status,
+            name:`${data.user.firstName} ${data.user.lastName}`,
+            firstName: data.user.firstName,
+            lastName:data.user.lastName,
+            accessToken:data?.token,
+            exp:data.tokenExpires,
+            refreshToken:data.refreshToken,
+            picture:data.user.photo
+          }
         } catch (error) {
           if (error instanceof Response) {
-            console.log("login error---->"+JSON.stringify(error))
+           
             return null;
           }
 
@@ -59,32 +87,73 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    })
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
-    
-      if (trigger === "update") {
+    async jwt({ token, user, trigger, session,account }) {
+      const jwtToken = token as JWTObject
+      // console.log("jwt auth---> " + JSON.stringify(jwtToken) + " \n user---> " + JSON.stringify(user) + "\n trigger--->" + JSON.stringify(trigger) + "\n session--->" + JSON.stringify(session)+"\n account---> "+JSON.stringify(account) + "\n now---> " + JSON.stringify(Date.now()))
+      if(trigger === "signIn"){
+        if(account){
+          if(account.type === "credentials"){
+            return { ...jwtToken, ...user };
+          }else if(account.type === "oauth"){
+            const response = await fetchClient({
+              method: "POST",
+              url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/google/login",
+              body:`{"idToken":"${account?.id_token}"}`,
+            });
+            
+            if(!response.ok){
+              throw response
+            }
+
+            const data: LoginResponse = await response.json();
+
+            return{
+              ...jwtToken,
+              id:data.user.id,
+              email:data.user.email,
+              role:data.user.role,
+              status:data.user.status,
+              name:`${data.user.firstName} ${data.user.lastName}`,
+              firstName: data.user.firstName,
+              lastName:data.user.lastName,
+              accessToken:data?.token,
+              exp:data.tokenExpires,
+              refreshToken:data.refreshToken,
+              picture:data.user.photo
+            }
+          }
+        }
+      }
+
+      else if (trigger === "update") {
         if (session.type === "MANUAL") {
           const response = await fetchClient({
-            url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "/api/user",
-            token: token.accessToken,
+            url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/me",
+            token: jwtToken.accessToken,
           });
-          const user = await response.json();
 
-          console.log("returning manual ---- ")
-          return { ...token, ...user };
+          
+
+          const user = await response.json();
+          // console.log("update response ----- > " +JSON.stringify(user))
+
+          
+          return { ...jwtToken, ...user , name: `${user.firstName} ${user.lastName}`};
         }
 
-        console.log("returning update ---- ")
-        return { ...token, ...session };
+        return { ...jwtToken, ...session };
       }
 
-      if (user) {
-        console.log("returning user ---- " + JSON.stringify(user))
-        return { ...token, ...user };
-      }
+      
 
-      const { exp: accessTokenExpires } = jwt.decode(token.accessToken);
+
+      const {exp : accessTokenExpires } = jwt.decode(token.accessToken as string);
 
       if (!accessTokenExpires) {
         return token;
@@ -94,18 +163,16 @@ export const authOptions: NextAuthOptions = {
       const accessTokenHasExpired = currentUnixTimestamp > accessTokenExpires;
 
       if (accessTokenHasExpired) {
-        console.log("returning after refresh ---- " + JSON.stringify(token))
+        console.log("expired")
         return await refreshAccessToken(token);
       }
 
-      console.log("returning token ---- " + JSON.stringify(token))
-      return token;
+      return jwtToken;
     },
     async session({ session, token }) {
 
-      console.log("session ----- > " + JSON.stringify(session) + " token ----- > " + JSON.stringify(token) )
-
       if (token.error) {
+        // console.log("token error ----> " + JSON.stringify(token.error))
         throw new Error("Refresh token has expired");
       }
 
@@ -118,28 +185,47 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
+    async signIn({account,user}){
+      if(account?.type === "oauth"){
+        try{
+          const response = await fetchClient({
+            method: "POST",
+            url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/google/login",
+            body:`{"idToken":"${account?.id_token}"}`,
+          });
+          // console.log("google login ---- > " + JSON.stringify(await response.json()))
+          if(!response.ok){
+            return false
+          }
+        }catch(error){
+          return error.message
+        }
+      }
+      
+     
+      return true
+    }
   },
   events: {
     async signOut({ token }) {
-      console.log("logout---->"+token.accessToken)
       const response = await fetchClient({
         method: "POST",
         url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/logout",
-        token: token.accessToken,
+        token: token.accessToken as string,
       });
 
-      console.log("logout---->"+response)
-    },
+    }
   },
 };
 
 async function refreshAccessToken(token: JWT) {
-  console.log("---------- refreshing token ---------- ")
   try {
     const response = await fetchClient({
       method: "POST",
       url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/refresh",
     });
+
+    console.log(response)
 
     if (!response.ok) throw response;
 

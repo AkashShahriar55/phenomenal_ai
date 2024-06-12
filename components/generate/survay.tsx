@@ -16,7 +16,6 @@ enum SurvayState {
 const Survay = () => {
 
     const [survayState, setSurvayState] = useState<SurvayState>(SurvayState.Q1);
-    console.log(survayState)
 
     switch (survayState) {
         case SurvayState.Q1:

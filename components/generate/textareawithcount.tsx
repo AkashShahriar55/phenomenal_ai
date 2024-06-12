@@ -44,7 +44,6 @@ const TextareaWithCount:React.FC<TextareaWithCountProps> = ({
         maxLength={maxLength}
         placeholder={placeholder}
         {...register(name, { valueAsNumber, onChange: (e) => {
-            console.log('Name changed:', e.target.value);
             // You can also update the value manually if needed
             setText(e.target.value);
           },})}

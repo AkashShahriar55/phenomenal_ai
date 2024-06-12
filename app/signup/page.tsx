@@ -1,26 +1,30 @@
 "use client";
+import Loader from "@/components/generate/loader";
 import PInput from "@/components/shared/input";
 import fetchClient from "@/lib/fetch-client";
 import { SignUpData, SignUpFormSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 
 export default function SignUp() {
 
+
+  const [registering,setRegistering] = useState(false)
+
   async function onSubmit(data:SignUpData) {
     
 
+    setRegistering(true)
     try {
       const response = await fetchClient({
         method: "POST",
         url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/email/register",
         body: JSON.stringify(data),
       });
-
-      console.log("-----register---- \n" + JSON.stringify(response))
+      
 
       if (!response.ok) {
         throw response;
@@ -32,11 +36,12 @@ export default function SignUp() {
       };
 
       signIn("credentials", credentials);
+      setRegistering(false)
     } catch (error) {
+      setRegistering(false)
       
       if (error instanceof Response) {
         const response = await error.json();
-        console.log("-----register---- \n" + JSON.stringify(response))
         if (!response.errors) {
           throw error;
         }
@@ -153,9 +158,9 @@ export default function SignUp() {
                 <button
                   type="submit"
                   className="mt-6 w-full min-h-12 disabled:bg-normal-gray text-white py-2 rounded-md shadow-sm font-medium bg-[#FC0808]"
-                  disabled={!isValid}
+                  disabled={!isValid || registering}
                 >
-                  REGISTER
+                  {registering ? <Loader className="size-5 fill-white"/> : "REGISTER"}
                 </button>
               </form>
             </div>

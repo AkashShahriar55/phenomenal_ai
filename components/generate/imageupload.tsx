@@ -28,7 +28,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ className, onImageSelected, u
     };
 
     reader.onerror = () => {
-      console.error('Error reading file');
       setLoading(false);
     };
 

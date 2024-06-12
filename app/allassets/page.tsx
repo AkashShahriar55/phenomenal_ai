@@ -93,7 +93,6 @@ export default function Generate() {
   const onSubmit = async (values: GenerateFormData) => {
     setLoading(true)
     try {
-      console.log(values.prompt)
       /**
        * Send the messages to the API.
        * Stores the response.
@@ -109,7 +108,7 @@ export default function Generate() {
       const sendData = await sendResponse.json()
       const jobID = sendData.jobID
 
-      console.error("sendResponse----> " + sendData + " " + jobID)
+
 
       if (sendResponse.ok && jobID) {
 
@@ -127,7 +126,6 @@ export default function Generate() {
         } while (!receiveResponse.ok)
 
         const receiveData = await receiveResponse.json()
-        console.log("sendResponse----> " + receiveData + " " + jobID)
 
         if (receiveResponse.ok) {
           setVideoUrl(receiveData.url)
@@ -153,7 +151,6 @@ export default function Generate() {
 
     } catch (error: any) {
       setLoading(false)
-      console.log(error)
 
       // if the user is not subscribed and there are no remaining free tries, it will show a modal
       // if (error.response.status === 403) {

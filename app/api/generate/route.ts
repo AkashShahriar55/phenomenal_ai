@@ -8,7 +8,6 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { getAwsCredentials } from '@/app/util/getAwsCredential';
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  console.log("request ---- > " + req.method)
   try {
     // const { userId } = auth(); // get the user ID from the session (Clerk)
     const body = await req.json(); // get the request body
@@ -40,7 +39,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 
   } catch (error) {
-    console.log("[CONVERSATION_ERROR]", error);
     return NextResponse.json({ error: `some error occured : ${error}` }, { status: 500 });
   }
 
@@ -56,13 +54,11 @@ export async function GET(req: NextRequest) {
     const jobID = searchParams.get('jobID')
 
     
-    console.log("here is jobid ---- > " + jobID)
     if (!jobID) {
       return NextResponse.json({ error: "Jobs are required" }, { status: 400 });
     }
 
     const data = await receiveMessages(jobID)
-    console.log(data)
 
     if (!data) {
       return NextResponse.json({ error: "data not there" }, { status: 404, statusText:"NULL" });
@@ -88,7 +84,6 @@ export async function GET(req: NextRequest) {
     let url
     try {
       url = await getSignedUrl(s3Client2, command, { expiresIn: 60 * 60 * 24 }); // URL expires in 1 day
-      console.log(url)
     } catch (error) {
       return NextResponse.json({ error: error }, { status: 500 });
     }
@@ -104,7 +99,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ url });
 
   } catch (error) {
-    console.log("[CONVERSATION_ERROR]", error);
     return NextResponse.json({ error: `some error occured : ${error}` }, { status: 500 });
   }
 

@@ -39,7 +39,6 @@ export async function sendMessage(parameters: SQSParams) {
   const command = new SendMessageCommand(params);
   const client = await getSqsClient()
   const response = await client.send(command);
-  console.log(response)
   return response;
 }
 
@@ -60,7 +59,6 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
 
 
   const response = await sqsClient.send(command);
-  console.log(response)
 
   if (response.Messages && response.Messages.length > 0) {
     for(let i = 0 ; i < response.Messages.length ; i++ ){
@@ -77,7 +75,6 @@ export async function receiveMessages(jobID: string): Promise<SQSResponse | null
     }
   }
 
-  console.log(data)
   return data
 }
 

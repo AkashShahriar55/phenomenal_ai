@@ -44,6 +44,8 @@
     "react-hook-form": "^7.51.5",
     "react-markdown": "^8.0.7",
     "react-player": "^2.16.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
     "sqs-consumer": "^10.3.0",
     "tailwind-merge": "^1.14.0",
     "typescript": "5.2.2",
