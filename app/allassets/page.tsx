@@ -1,20 +1,11 @@
 "use client";
-import ImageUpload from "@/components/generate/imageupload";
-import TextareaWithCount from "@/components/generate/textareawithcount";
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import CustomVideoPlayer from "@/components/generate/customvideoplayer";
 import { GenerateFormData, GenerateFormSchema } from "@/lib/types";
-import * as z from "zod";
-import axios from "axios";
 import { useRouter } from 'next/navigation'
-import { Form, useForm } from "react-hook-form";
+import {  useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import GeneratingLoader from "@/components/generate/modalloader";
-import { error } from "console";
 import { sleep } from "@/lib/utils";
-import Survay from "@/components/generate/survay";
 import AssetItem, { AssetItemData } from "@/components/allassets/assetitem";
-import AssetItems from "@/components/allassets/assetitem";
 
 enum VideoGenerationState {
   Initial,
@@ -28,144 +19,6 @@ export default function Generate() {
 
 
   const router = useRouter();
-  const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [text, setText] = useState<string>('');
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [videoName, setVideoName] = useState<string | null>(null);
-  const [videoState, setVideoState] = useState<VideoGenerationState>(VideoGenerationState.Initial);
-  const [loading, setLoading] = useState(false);
-
-  const handleImageInput = useCallback((image: string | null) => {
-    setUploadedImage(image)
-  }, []);
-
-  const handleNonEmptyInput = useCallback((text: string) => {
-    setText(text)
-  }, []);
-
-
-  const closeModal = () => {
-    setErrorMessage(undefined)
-  };
-
-
-  function handleGenerationDelete() {
-    setVideoState(VideoGenerationState.Initial)
-  }
-
-
-  function handleImageDelete() {
-    setUploadedImage(null)
-  }
-
-
-
-  useEffect(() => {
-    if (text.length > 0) {
-      setSubmitEnabled(true)
-    } else {
-      setSubmitEnabled(false)
-    }
-  }, [uploadedImage, text]);
-
-
-
-  /**
-   * Form for the prompt for the code generation.
-   * Zod used for validation.
-   */
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = useForm<GenerateFormData>({
-    resolver: zodResolver(GenerateFormSchema), // Apply the zodResolver
-  });
-
-  /**
-   * Submit the prompt to the API to generate a response.
-   * If the user is not subscribed and there are no remaining free tries, it will show a modal.
-   * @param values (string) prompt for the code generation
-   */
-  const onSubmit = async (values: GenerateFormData) => {
-    setLoading(true)
-    try {
-      /**
-       * Send the messages to the API.
-       * Stores the response.
-       */
-
-      const sendResponse = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: values.prompt, duration: values.duration }),
-      });
-      const sendData = await sendResponse.json()
-      const jobID = sendData.jobID
-
-
-
-      if (sendResponse.ok && jobID) {
-
-        let receiveResponse
-        do {
-          receiveResponse = await fetch(`/api/generate?jobID=${jobID}`);
-
-
-          if (receiveResponse.status != 404) {
-            break
-          }
-
-          await sleep(1000 * 30)
-
-        } while (!receiveResponse.ok)
-
-        const receiveData = await receiveResponse.json()
-
-        if (receiveResponse.ok) {
-          setVideoUrl(receiveData.url)
-          setVideoState(VideoGenerationState.Loaded)
-          // Remove special characters and punctuation
-          const cleanedString = values.prompt.replace(/[^\w\s]/gi, '');
-
-          // Split the string into words
-          const wordsArray = cleanedString.split(/\s+/);
-
-          // Concatenate words with an underscore
-          const transformedString = wordsArray.join('_');
-          setVideoName(transformedString + ".mp4")
-        } else {
-          setErrorMessage(receiveData.error)
-        }
-
-      }
-
-
-
-
-
-    } catch (error: any) {
-      setLoading(false)
-
-      // if the user is not subscribed and there are no remaining free tries, it will show a modal
-      // if (error.response.status === 403) {
-      //   // proModal.onOpen();
-
-      // } else {
-      //   console.log(error);
-      //   // toast.error("Could not answer your question");
-      // }
-    } finally {
-      setLoading(false)
-      router.refresh();
-    }
-
-  };
 
 
 

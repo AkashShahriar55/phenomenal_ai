@@ -52,6 +52,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify(credentials),
           });
          
+          console.log(response)
 
           if (!response.ok) {
             throw response;
@@ -59,6 +60,7 @@ export const authOptions: NextAuthOptions = {
 
           const data: LoginResponse = await response.json();
       
+          console.log(data)
 
           if (!data?.token) {
             throw response;
@@ -94,6 +96,8 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, trigger, session,account }) {
+      console.log("jwt i am getting --- > " + JSON.stringify(token))
+      // console.log("user i am getting --- > " + JSON.stringify(user))
       const jwtToken = token as JWTObject
       // console.log("jwt auth---> " + JSON.stringify(jwtToken) + " \n user---> " + JSON.stringify(user) + "\n trigger--->" + JSON.stringify(trigger) + "\n session--->" + JSON.stringify(session)+"\n account---> "+JSON.stringify(account) + "\n now---> " + JSON.stringify(Date.now()))
       if(trigger === "signIn"){
@@ -153,18 +157,22 @@ export const authOptions: NextAuthOptions = {
       
 
 
-      const {exp : accessTokenExpires } = jwt.decode(token.accessToken as string);
+      const {exp : accessTokenExpires } = jwt.decode(jwtToken.accessToken as string);
+
+  
 
       if (!accessTokenExpires) {
-        return token;
+        return jwtToken;
       }
 
       const currentUnixTimestamp = Math.floor(Date.now() / 1000);
       const accessTokenHasExpired = currentUnixTimestamp > accessTokenExpires;
 
+
+
       if (accessTokenHasExpired) {
-        console.log("expired")
-        return await refreshAccessToken(token);
+        
+        return await refreshAccessToken(jwtToken);
       }
 
       return jwtToken;
@@ -220,24 +228,29 @@ export const authOptions: NextAuthOptions = {
 
 async function refreshAccessToken(token: JWT) {
   try {
-    const response = await fetchClient({
+    const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/refresh",{
       method: "POST",
-      url: process.env.NEXT_PUBLIC_BACKEND_API_URL + "v1/auth/refresh",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + token.refreshToken,
+      },
     });
-
-    console.log(response)
 
     if (!response.ok) throw response;
 
-    const refreshedAccessToken: { access_token: string } = await response.json();
-    const { exp } = jwt.decode(refreshedAccessToken.access_token);
+    const data = await response.json();
+   
+    console.log(data)
+
+    token.accessToken = data.token
+    token.refreshToken = data.refreshToken
+    token.exp = data.tokenExpires
 
     return {
-      ...token,
-      accessToken: refreshedAccessToken.access_token,
-      exp,
+      ...token
     };
   } catch (error) {
+    console.log(error)
     return {
       ...token,
       error: "RefreshAccessTokenError",

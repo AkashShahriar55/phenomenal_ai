@@ -12,6 +12,8 @@ async function fetchClient({ method = "GET", url, body = "", token }: fetchClien
     const session = await getSession();
     const accessToken = token || session?.accessToken;
 
+    console.log(accessToken)
+
     const response = await fetch(url.toString(), {
       method: method,
       headers: {
